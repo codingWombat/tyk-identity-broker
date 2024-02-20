@@ -130,11 +130,15 @@ func BeginAuthHandler(res http.ResponseWriter, req *http.Request, toth *toth.Tot
 	http.Redirect(res, req, url, http.StatusTemporaryRedirect)
 }
 
-// GetState gets the state string associated with the given request
-// This state is sent to the provider and can be retrieved during the
-// callback.
+// GetState gets the state returned by the provider during the callback.
+// This is used to prevent CSRF attacks, see
+// http://tools.ietf.org/html/rfc6749#section-10.12
 var GetState = func(req *http.Request) string {
-	return "state"
+	params := req.URL.Query()
+	if params.Encode() == "" && req.Method == http.MethodPost {
+		return req.FormValue("state")
+	}
+	return params.Get("state")
 }
 
 /*
