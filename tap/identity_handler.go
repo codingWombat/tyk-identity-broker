@@ -1,6 +1,5 @@
 /*
-	package tap wraps a set of interfaces and object to provide a generic interface to a delegated authentication
-
+Package tap wraps a set of interfaces and object to provide a generic interface to a delegated authentication
 proxy
 */
 package tap
@@ -12,7 +11,7 @@ import (
 )
 
 // IdentityHandler provides an interface that provides a generic way to handle the creation / login of an SSO
-// session for a specific provider, it should generate users, tokens and SSO sesisons for whatever target system
+// session for a specific provider, it should generate users, tokens and SSO sessions for whatever target system
 // is being used off the back of a delegated authentication provider such as GPlus.
 type IdentityHandler interface {
 	Init(interface{}) error

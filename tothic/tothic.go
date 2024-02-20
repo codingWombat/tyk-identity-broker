@@ -60,13 +60,13 @@ func KeyFromEnv() (key string) {
 	temp := os.Getenv(EnvPrefix + "_SESSION_SECRET")
 	if temp != "" {
 		if key != "" {
-			log.Warn("SESSION_SECRET is deprecated, TYK_IB_SESSION_SECRET overrides it when you set both.")
+			log.Warnf("SESSION_SECRET is deprecated, %s_SESSION_SECRET overrides it when you set both.", EnvPrefix)
 		}
 		key = temp
 	}
 
 	if key == "" && temp == "" {
-		log.Warn("toth/tothic: no TYK_IB_SESSION_SECRET environment variable is set. The default cookie store is not available and any calls will fail. Ignore this warning if you are using a different store.")
+		log.Warnf("toth/tothic: no %s_SESSION_SECRET environment variable is set. The default cookie store is not available and any calls will fail. Ignore this warning if you are using a different store.", EnvPrefix)
 	}
 
 	return

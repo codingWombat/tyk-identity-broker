@@ -1,3 +1,7 @@
+/*
+Package tap wraps a set of interfaces and object to provide a generic interface to a delegated authentication
+proxy
+*/
 package tap
 
 import (
