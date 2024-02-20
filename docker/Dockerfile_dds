@@ -1,0 +1,14 @@
+FROM golang:bookworm AS builder
+
+COPY ./ /app/
+WORKDIR /app
+RUN go build -o /app/tyk-identity-broker
+
+FROM debian:bookworm
+
+COPY --from=builder /app/tyk-identity-broker /opt/tyk-identity-broker/tyk-identity-broker
+COPY ./tib_sample.conf /opt/tyk-identity-broker/tib.conf
+
+WORKDIR /opt/tyk-identity-broker
+
+CMD ["/opt/tyk-identity-broker/tyk-identity-broker", "-c", "/opt/tyk-identity-broker/tib.conf"]
