@@ -217,6 +217,8 @@ var CompleteUserAuth = func(res http.ResponseWriter, req *http.Request, toth *to
 		return goth.User{}, err
 	}
 
+	log.Debug(req.URL.Query())
+
 	_, err = sess.Authorize(provider, req.URL.Query())
 
 	if err != nil {

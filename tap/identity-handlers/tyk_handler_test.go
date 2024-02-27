@@ -143,7 +143,7 @@ func TestGetGroupId(t *testing.T) {
 		},
 		{
 			TestName:           "Custom group id field not empty but invalid & default group set",
-			CustomGroupIDField: "my-custom-group-id-field",
+			CustomGroupIDField: "my-customProvider-group-id-field",
 			user:               goth.User{},
 			ExpectedGroupID:    DefaultGroupId,
 			DefaultGroupID:     DefaultGroupId,
@@ -151,7 +151,7 @@ func TestGetGroupId(t *testing.T) {
 		},
 		{
 			TestName:           "Custom group id field not empty but invalid & default group not set",
-			CustomGroupIDField: "my-custom-group-id-field",
+			CustomGroupIDField: "my-customProvider-group-id-field",
 			user:               goth.User{},
 			ExpectedGroupID:    "",
 			DefaultGroupID:     "",
@@ -159,10 +159,10 @@ func TestGetGroupId(t *testing.T) {
 		},
 		{
 			TestName:           "Custom group id field not empty & valid. With default group not set",
-			CustomGroupIDField: "my-custom-group-id-field",
+			CustomGroupIDField: "my-customProvider-group-id-field",
 			user: goth.User{
 				RawData: map[string]interface{}{
-					"my-custom-group-id-field": "admins",
+					"my-customProvider-group-id-field": "admins",
 				},
 			},
 			ExpectedGroupID:  "admins-group",
@@ -171,10 +171,10 @@ func TestGetGroupId(t *testing.T) {
 		},
 		{
 			TestName:           "Receive many groups from idp with blank space separated",
-			CustomGroupIDField: "my-custom-group-id-field",
+			CustomGroupIDField: "my-customProvider-group-id-field",
 			user: goth.User{
 				RawData: map[string]interface{}{
-					"my-custom-group-id-field": "devs admins",
+					"my-customProvider-group-id-field": "devs admins",
 				},
 			},
 			ExpectedGroupID:  "admins-group",
@@ -183,10 +183,10 @@ func TestGetGroupId(t *testing.T) {
 		},
 		{
 			TestName:           "Receive many groups from idp with comma separated",
-			CustomGroupIDField: "my-custom-group-id-field",
+			CustomGroupIDField: "my-customProvider-group-id-field",
 			user: goth.User{
 				RawData: map[string]interface{}{
-					"my-custom-group-id-field": "devs,admins",
+					"my-customProvider-group-id-field": "devs,admins",
 				},
 			},
 			ExpectedGroupID:    "admins-group",
@@ -196,10 +196,10 @@ func TestGetGroupId(t *testing.T) {
 		},
 		{
 			TestName:           "Custom group id field not empty & valid. With default group set",
-			CustomGroupIDField: "my-custom-group-id-field",
+			CustomGroupIDField: "my-customProvider-group-id-field",
 			user: goth.User{
 				RawData: map[string]interface{}{
-					"my-custom-group-id-field": "admins",
+					"my-customProvider-group-id-field": "admins",
 				},
 			},
 			ExpectedGroupID:  "admins-group",

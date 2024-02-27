@@ -17,3 +17,4 @@ tyk.io.signing.key
 *~
 .terraform**
 .DS_Store
+tyk-identity-broker.exe

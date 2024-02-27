@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/TykTechnologies/tyk-identity-broker/providers/customProvider"
 	"sync"
 
 	"net/http"
@@ -106,6 +107,9 @@ func (s *Social) Init(handler tap.IdentityHandler, profile tap.Profile, config [
 
 	// TODO: Add more providers here
 	gothProviders := []goth.Provider{}
+
+	log.Debug(gothProviders)
+
 	for _, provider := range s.config.UseProviders {
 		switch provider.Name {
 		case "gplus":
@@ -148,9 +152,21 @@ func (s *Social) Init(handler tap.IdentityHandler, profile tap.Profile, config [
 			}
 
 			gothProviders = append(gothProviders, gProv)
+
+		case "openid-connect-pkce":
+
+			log.Debug("PKCE provider")
+
+			gProv, err := customProvider.New(provider.Key, provider.Secret, s.getCallBackURL(provider.Name), provider.DiscoverURL, provider.Scopes...)
+			if err != nil {
+				socialLogger.Error(err)
+				return err
+			}
+			gothProviders = append(gothProviders, gProv)
 		}
 	}
 
+	log.Debug(gothProviders)
 	s.toth.UseProviders(gothProviders...)
 	return nil
 }

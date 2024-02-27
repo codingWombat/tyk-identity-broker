@@ -178,9 +178,9 @@ func SetHttpClient(c *http.Client) {
 
 // DispatchDashboard dispatches a request to the dashboard API and handles the response
 func (t *TykAPI) DispatchDashboard(target Endpoint, method string, usercode string, body io.Reader) ([]byte, int, error) {
-	//if user set custom dispatcher then lets use it (internal tib)
+	//if user set customProvider dispatcher then lets use it (internal tib)
 	if t.CustomDispatcher != nil {
-		tykAPILogger.Info("Using custom regular dispatcher")
+		tykAPILogger.Info("Using customProvider regular dispatcher")
 		return t.CustomDispatcher(target, method, usercode, body)
 	} else {
 		tykAPILogger.Info("using regular dispatcher")
@@ -230,9 +230,9 @@ func (t *TykAPI) readBody(response *http.Response) ([]byte, error) {
 
 // DispatchDashboardSuper will dispatch a request to the dashbaord super-user API (admin)
 func (t *TykAPI) DispatchDashboardSuper(target Endpoint, method string, body io.Reader) ([]byte, int, error) {
-	//if user set custom super dispatcher then lets use it (internal tib)
+	//if user set customProvider super dispatcher then lets use it (internal tib)
 	if t.CustomSuperDispatcher != nil {
-		tykAPILogger.Info("using custom super dispatcher")
+		tykAPILogger.Info("using customProvider super dispatcher")
 		return t.CustomSuperDispatcher(target, method, body)
 	} else {
 		tykAPILogger.Info("using super dispatcher")
@@ -282,8 +282,14 @@ func (t *TykAPI) DispatchGateway(target Endpoint, method string, body io.Reader,
 		ctype = "application/json"
 	}
 
+	log.Debugf("Target: %s", target)
+	log.Debugf("Secrect %s", t.GatewayConfig.AdminSecret)
+	log.Debugf("content-typ %s", ctype)
+	log.Debugf("Body: %s", body)
+
 	newRequest.Header.Add("x-tyk-authorization", t.GatewayConfig.AdminSecret)
 	newRequest.Header.Add("content-type", ctype)
+
 	response, reqErr := httpClient.Do(newRequest)
 
 	if reqErr != nil {
@@ -295,12 +301,12 @@ func (t *TykAPI) DispatchGateway(target Endpoint, method string, body io.Reader,
 		return []byte{}, response.StatusCode, bErr
 	}
 
+	tykAPILogger.Debug("API Response: ", string(retBody))
+
 	if response.StatusCode > 201 {
 		tykAPILogger.Warning("Response code was: ", response.StatusCode)
 		return retBody, response.StatusCode, errors.New("Response code from the gateway was not 200!")
 	}
-
-	tykAPILogger.Debug("API Response: ", string(retBody))
 
 	return retBody, response.StatusCode, nil
 }
