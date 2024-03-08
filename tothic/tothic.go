@@ -218,8 +218,22 @@ var CompleteUserAuth = func(res http.ResponseWriter, req *http.Request, toth *to
 	}
 
 	log.Debug(req.URL.Query())
+	log.Debug(req.Body)
 
-	_, err = sess.Authorize(provider, req.URL.Query())
+	var queryValues goth.Params
+
+	switch req.Method {
+	case http.MethodGet:
+		queryValues = req.URL.Query()
+	default:
+		err := req.ParseForm()
+		if err != nil {
+			return goth.User{}, err
+		}
+		queryValues = req.PostForm
+	}
+
+	_, err = sess.Authorize(provider, queryValues)
 
 	if err != nil {
 		return goth.User{}, err

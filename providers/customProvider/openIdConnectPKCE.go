@@ -201,10 +201,12 @@ func (p *Provider) BeginAuth(state string) (goth.Session, error) {
 
 	log.Get().Debugf("Codeverifier: %s", coderVerifier)
 	pkceOptions := oauth2.S256ChallengeOption(coderVerifier)
-
-	authCodeURL := p.config.AuthCodeURL(state, pkceOptions)
+	responseModeOptions := oauth2.SetAuthURLParam("response_mode", "form_post")
+	authCodeURL := p.config.AuthCodeURL(state, pkceOptions, responseModeOptions)
 
 	parse, err := url.Parse(authCodeURL)
+
+	log.Get().Debugf("AUTHURL %s", parse)
 
 	if err != nil {
 		return nil, err
