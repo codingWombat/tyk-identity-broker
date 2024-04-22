@@ -135,10 +135,20 @@ func BeginAuthHandler(res http.ResponseWriter, req *http.Request, toth *toth.Tot
 // http://tools.ietf.org/html/rfc6749#section-10.12
 var GetState = func(req *http.Request) string {
 	params := req.URL.Query()
+
+	var state string
+
 	if params.Encode() == "" && req.Method == http.MethodPost {
-		return req.FormValue("state")
+		state = req.FormValue("state")
+	} else {
+		state = params.Get("state")
 	}
-	return params.Get("state")
+
+	if state == "" {
+		state = "state"
+	}
+
+	return state
 }
 
 /*
