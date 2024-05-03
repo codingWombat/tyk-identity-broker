@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -178,9 +179,9 @@ func SetHttpClient(c *http.Client) {
 
 // DispatchDashboard dispatches a request to the dashboard API and handles the response
 func (t *TykAPI) DispatchDashboard(target Endpoint, method string, usercode string, body io.Reader) ([]byte, int, error) {
-	//if user set customProvider dispatcher then lets use it (internal tib)
+	//if user set custom dispatcher then lets use it (internal tib)
 	if t.CustomDispatcher != nil {
-		tykAPILogger.Info("Using customProvider regular dispatcher")
+		tykAPILogger.Info("Using custom regular dispatcher")
 		return t.CustomDispatcher(target, method, usercode, body)
 	} else {
 		tykAPILogger.Info("using regular dispatcher")
@@ -209,8 +210,8 @@ func (t *TykAPI) DispatchDashboard(target Endpoint, method string, usercode stri
 	tykAPILogger.Debug("GOT:", string(retBody))
 
 	if response.StatusCode > 201 {
-		tykAPILogger.WithField("reponse_code", response.StatusCode).Warning("Got:", string(retBody))
-		return retBody, response.StatusCode, errors.New("Response code from dashboard was not 200!")
+		tykAPILogger.WithField("response_code", response.StatusCode).Warning("Got:", string(retBody))
+		return retBody, response.StatusCode, errors.New("response code from dashboard was not 200")
 	}
 
 	return retBody, response.StatusCode, nil
@@ -230,9 +231,9 @@ func (t *TykAPI) readBody(response *http.Response) ([]byte, error) {
 
 // DispatchDashboardSuper will dispatch a request to the dashbaord super-user API (admin)
 func (t *TykAPI) DispatchDashboardSuper(target Endpoint, method string, body io.Reader) ([]byte, int, error) {
-	//if user set customProvider super dispatcher then lets use it (internal tib)
+	//if user set custom super dispatcher then lets use it (internal tib)
 	if t.CustomSuperDispatcher != nil {
-		tykAPILogger.Info("using customProvider super dispatcher")
+		tykAPILogger.Info("using custom super dispatcher")
 		return t.CustomSuperDispatcher(target, method, body)
 	} else {
 		tykAPILogger.Info("using super dispatcher")
@@ -282,14 +283,8 @@ func (t *TykAPI) DispatchGateway(target Endpoint, method string, body io.Reader,
 		ctype = "application/json"
 	}
 
-	log.Debugf("Target: %s", target)
-	log.Debugf("Secrect %s", t.GatewayConfig.AdminSecret)
-	log.Debugf("content-typ %s", ctype)
-	log.Debugf("Body: %s", body)
-
 	newRequest.Header.Add("x-tyk-authorization", t.GatewayConfig.AdminSecret)
 	newRequest.Header.Add("content-type", ctype)
-
 	response, reqErr := httpClient.Do(newRequest)
 
 	if reqErr != nil {
@@ -301,8 +296,6 @@ func (t *TykAPI) DispatchGateway(target Endpoint, method string, body io.Reader,
 		return []byte{}, response.StatusCode, bErr
 	}
 
-	tykAPILogger.Debug("API Response: ", string(retBody))
-
 	if response.StatusCode > 201 {
 		tykAPILogger.Warning("Response code was: ", response.StatusCode)
 		return retBody, response.StatusCode, errors.New("Response code from the gateway was not 200!")
@@ -311,13 +304,13 @@ func (t *TykAPI) DispatchGateway(target Endpoint, method string, body io.Reader,
 	return retBody, response.StatusCode, nil
 }
 
-// Dcode will unmarshal a request body, a bit redundant tbh
+// Decode will unmarshal a request body, a bit redundant tbh
 func (t *TykAPI) Decode(raw []byte, retVal interface{}) error {
 	decErr := json.Unmarshal(raw, &retVal)
 	return decErr
 }
 
-// DispatchAndDecode will select the API to target, dispatch the request, then decode ther esponse to return to the caller
+// DispatchAndDecode will select the API to target, dispatch the request, then decode the response to return to the caller
 func (t *TykAPI) DispatchAndDecode(target Endpoint, method string, APIName TykAPIName, retVal interface{}, creds string, body io.Reader, ctype string) (error, int, bool) {
 	var retBytes []byte
 	var dispatchErr error
@@ -342,7 +335,9 @@ func (t *TykAPI) DispatchAndDecode(target Endpoint, method string, APIName TykAP
 		return dispatchErr, retCode, true
 	}
 
-	t.Decode(retBytes, retVal)
+	if err := t.Decode(retBytes, retVal); err != nil {
+		return fmt.Errorf("failed to decode the response: %w", err), retCode, false
+	}
 
 	return nil, retCode, true
 }
@@ -366,9 +361,7 @@ func (t *TykAPI) CreateSSONonce(userAPICred string, data interface{}) (interface
 	if retCode != http.StatusOK {
 		tykAPILogger.Warn("SSO regular dashboard API failed, trying with Admin API")
 		return t.CreateAdminSSONonce(data)
-	}
-
-	if dErr == nil && retCode == http.StatusOK {
+	} else if dErr == nil {
 		tykAPILogger.Info("Single Sign-On nonce created successfully via Dashboard API!")
 	}
 

@@ -25,22 +25,22 @@ func Test_ReadNamesFromClaims(t *testing.T) {
 			ForeNameExpected: "jhon",
 			SurNameExpected:  "doe",
 		},
-		// read customProvider claim
+		// read custom claim
 		{
 			rawData: map[string]interface{}{
-				"customProvider-forename-claim": "jhon",
-				"customProvider-surname-claim":  "doe",
+				"custom-forename-claim": "jhon",
+				"custom-surname-claim":  "doe",
 			},
-			ForeNameClaim:    "customProvider-forename-claim",
-			SurNameClaim:     "customProvider-surname-claim",
+			ForeNameClaim:    "custom-forename-claim",
+			SurNameClaim:     "custom-surname-claim",
 			ForeNameExpected: "jhon",
 			SurNameExpected:  "doe",
 		},
-		// read customProvider claims that doesnt comes from idp...(bad mapping)
+		// read custom claims that doesnt comes from idp...(bad mapping)
 		{
 			rawData:          map[string]interface{}{},
-			ForeNameClaim:    "customProvider-forename-claim",
-			SurNameClaim:     "customProvider-surname-claim",
+			ForeNameClaim:    "custom-forename-claim",
+			SurNameClaim:     "custom-surname-claim",
 			ForeNameExpected: "",
 			SurNameExpected:  "",
 		},
@@ -66,18 +66,18 @@ func Test_ReadEmailFromClaims(t *testing.T) {
 			},
 			emailExpected: "jhon@doe.com",
 		},
-		// read customProvider claim
+		// read custom claim
 		{
 			rawData: map[string]interface{}{
-				"customProvider-email-claim": "jhon@doe.com",
+				"custom-email-claim": "jhon@doe.com",
 			},
-			emailClaim:    "customProvider-email-claim",
+			emailClaim:    "custom-email-claim",
 			emailExpected: "jhon@doe.com",
 		},
-		// read customProvider claims that doesnt comes from idp...(bad mapping)
+		// read custom claims that doesnt comes from idp...(bad mapping)
 		{
 			rawData:       map[string]interface{}{},
-			emailClaim:    "customProvider-email-claim",
+			emailClaim:    "custom-email-claim",
 			emailExpected: "",
 		},
 		// WIF

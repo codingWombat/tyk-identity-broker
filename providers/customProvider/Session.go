@@ -22,7 +22,7 @@ type Session struct {
 }
 
 // GetAuthURL will return the URL set by calling the `BeginAuth` function on the OpenID Connect provider.
-func (s Session) GetAuthURL() (string, error) {
+func (s *Session) GetAuthURL() (string, error) {
 	if s.AuthURL == "" {
 		return "", errors.New("an AuthURL has not be set")
 	}
@@ -32,8 +32,6 @@ func (s Session) GetAuthURL() (string, error) {
 // Authorize the session with the OpenID Connect provider and return the access token to be stored for future use.
 func (s *Session) Authorize(provider goth.Provider, params goth.Params) (string, error) {
 	p := provider.(*Provider)
-
-	log.Get().Debug("Foo")
 
 	var authParams []oauth2.AuthCodeOption
 
@@ -48,8 +46,6 @@ func (s *Session) Authorize(provider goth.Provider, params goth.Params) (string,
 
 	authParams = append(authParams, oauth2.VerifierOption(s.CodeVerifier))
 
-	log.Get().Debugf("Bar")
-
 	log.Get().Debug(authParams)
 	log.Get().Debugf("params: %s", params)
 	log.Get().Debugf("code: %s", params.Get("code"))
@@ -60,7 +56,7 @@ func (s *Session) Authorize(provider goth.Provider, params goth.Params) (string,
 	}
 
 	if !token.Valid() {
-		return "", errors.New("Invalid token received from provider")
+		return "", errors.New("invalid token received from provider")
 	}
 
 	s.AccessToken = token.AccessToken
@@ -71,12 +67,12 @@ func (s *Session) Authorize(provider goth.Provider, params goth.Params) (string,
 }
 
 // Marshal the session into a string
-func (s Session) Marshal() string {
+func (s *Session) Marshal() string {
 	b, _ := json.Marshal(s)
 	return string(b)
 }
 
-func (s Session) String() string {
+func (s *Session) String() string {
 	return s.Marshal()
 }
 

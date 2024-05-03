@@ -108,8 +108,6 @@ func (s *Social) Init(handler tap.IdentityHandler, profile tap.Profile, config [
 	// TODO: Add more providers here
 	gothProviders := []goth.Provider{}
 
-	log.Debug(gothProviders)
-
 	for _, provider := range s.config.UseProviders {
 		switch provider.Name {
 		case "gplus":

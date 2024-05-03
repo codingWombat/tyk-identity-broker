@@ -227,9 +227,6 @@ var CompleteUserAuth = func(res http.ResponseWriter, req *http.Request, toth *to
 		return goth.User{}, err
 	}
 
-	log.Debug(req.URL.Query())
-	log.Debug(req.Body)
-
 	var queryValues goth.Params
 
 	switch req.Method {
