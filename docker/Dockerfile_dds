@@ -1,0 +1,22 @@
+FROM golang:bookworm AS builder
+
+COPY ./ /app/
+WORKDIR /app
+RUN mkdir -p /app/deploy \
+    && go build -o /app/deploy/tyk-identity-broker \
+    && cp ./tib_sample.conf /app/deploy/tib.conf
+
+FROM debian:bookworm
+
+COPY --from=builder /app/deploy/ /opt/tyk-identity-broker/
+
+RUN apt-get update \
+ && apt-get upgrade -y \
+ && apt-get install -y curl dnsdiag redis-tools iputils-ping iproute2 netcat-openbsd curl \
+ && apt-get autoremove -y \
+ && rm -rf /var/lib/{apt,dpkg,cache,log}/
+
+
+WORKDIR /opt/tyk-identity-broker
+
+CMD ["/opt/tyk-identity-broker/tyk-identity-broker", "-c", "/opt/tyk-identity-broker/tib.conf"]
